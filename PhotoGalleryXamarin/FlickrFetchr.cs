@@ -1,13 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
-using Android.Runtime;
+﻿using System.Collections.Generic;
 using Android.Util;
 using Java.IO;
 using Java.Net;
-using Org.Json;
-using PhotoGalleryXamarin.Models;
-using PhotoGalleryXamarin.Extensions;
 using Newtonsoft.Json;
+using Org.Json;
+using PhotoGalleryXamarin.Extensions;
+using PhotoGalleryXamarin.Models;
 
 namespace PhotoGalleryXamarin
 {
@@ -16,8 +14,7 @@ namespace PhotoGalleryXamarin
         private const string ApiKey = "bb8530f0f6763bc399470ee220717fe9";
         private const string Tag = "FlickrFetchr";
 
-
-        public List<GalleryItem> FetchItems()
+        public List<GalleryItem> FetchItems(int pageIndex)
         {
             var items = new List<GalleryItem>();
 
@@ -30,6 +27,7 @@ namespace PhotoGalleryXamarin
                     .AppendQueryParameter("format", "json")
                     .AppendQueryParameter("nojsoncallback", "1")
                     .AppendQueryParameter("extras", "url_s")
+                    .AppendQueryParameter("page", pageIndex.ToString())
                     .Build().ToString();
 
                 var jsonString = GetUrlString(url);

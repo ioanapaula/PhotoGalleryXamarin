@@ -1,11 +1,16 @@
 ﻿using Android.OS;
 using Java.Lang;
+using JavaObject = Java.Lang.Object;
 
 namespace PhotoGalleryXamarin
 {
     public abstract class XamarinAsyncTask<T> : AsyncTask<Void, Void, T>
-    {
-        protected sealed override void OnPostExecute(Object result)
+    { 
+        public System.Action<T> OnPostExecuteImpl { get; set; }
+
+        public int ResultPageIndex { get; set; }
+
+        protected sealed override void OnPostExecute(JavaObject result)
         {
             var unwrappedResult = (result as JavaObjectWrapper<T>).ContainedObject;
 
@@ -14,9 +19,7 @@ namespace PhotoGalleryXamarin
             OnPostExecuteImpl?.Invoke(unwrappedResult);
         }
 
-        public System.Action<T> OnPostExecuteImpl { get; set; }
-
-        protected sealed override Object DoInBackground(params Object[] native_parms)
+        protected sealed override JavaObject DoInBackground(params JavaObject[] native_parms)
         {
             return new JavaObjectWrapper<T>(DoInBackground());
         }
@@ -31,11 +34,11 @@ namespace PhotoGalleryXamarin
 
     public class JavaObjectWrapper<T> : Java.Lang.Object
     {
-        public T ContainedObject { get; }
-
         public JavaObjectWrapper(T containedObject)
         {
             ContainedObject = containedObject;
         }
+
+        public T ContainedObject { get; }
     }
 }
