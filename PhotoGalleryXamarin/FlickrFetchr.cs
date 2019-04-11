@@ -7,6 +7,7 @@ using Java.Net;
 using Org.Json;
 using PhotoGalleryXamarin.Models;
 using PhotoGalleryXamarin.Extensions;
+using Newtonsoft.Json;
 
 namespace PhotoGalleryXamarin
 {
@@ -34,8 +35,12 @@ namespace PhotoGalleryXamarin
                 var jsonString = GetUrlString(url);
                 Log.Info(Tag, $"Received JSON: {jsonString}");
 
-                var jsonBody = new JSONObject((string)jsonString);
-                ParseItems(items, jsonBody);
+                JsonTextReader reader = new JsonTextReader(new System.IO.StringReader(jsonString.ToString()));
+                JsonSerializer serializer = new JsonSerializer();
+
+                var galleryInfo = serializer.Deserialize<GalleryInfo>(reader);
+                
+                return galleryInfo.Gallery.GalleryItems;
             }
             catch (IOException ioe)
             {
@@ -46,27 +51,7 @@ namespace PhotoGalleryXamarin
                 Log.Error(Tag, $"Failed to parse JSON ", je);
             }
 
-            return items;
-        }
-
-        public void ParseItems(List<GalleryItem> items, JSONObject jsonBody)
-        {
-            var photosJsonObject = jsonBody.GetJSONObject("photos");
-            var photoJsonArray = photosJsonObject.GetJSONArray("photo");
-
-            for(int i = 0; i < photoJsonArray.Length(); i++)
-            {
-                var photoJsonObject = photoJsonArray.GetJSONObject(i);
-                var item = new GalleryItem();
-                item.Id = photoJsonObject.GetString("id");
-                item.Caption = photoJsonObject.GetString("title");
-
-                if (photoJsonObject.Has("url_s"))
-                {
-                    item.Url = photoJsonObject.GetString("url_s");
-                    items.Add(item);
-                }
-            }
+            return null;
         }
 
         private byte[] GetUrlBytes(string urlSpec)
