@@ -5,10 +5,10 @@ using JavaObject = Java.Lang.Object;
 namespace PhotoGalleryXamarin
 {
     public abstract class XamarinAsyncTask<T> : AsyncTask<Void, Void, T>
-    { 
-        public System.Action<T> OnPostExecuteImpl { get; set; }
-
+    {
         public int ResultPageIndex { get; set; }
+
+        public System.Action<T> OnPostExecuteImpl { get; set; }
 
         protected sealed override void OnPostExecute(JavaObject result)
         {

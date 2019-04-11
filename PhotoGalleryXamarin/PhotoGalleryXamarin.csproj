@@ -63,11 +63,12 @@
     <Compile Include="Activities\SingleFragmentActivity.cs" />
     <Compile Include="Fragments\PhotoGalleryFragment.cs" />
     <Compile Include="FlickrFetchr.cs" />
-    <Compile Include="Models\GalleryItem.cs" />
+    <Compile Include="Models\GalleryInfo.cs" />
     <Compile Include="XamarinAsyncTask.cs" />
     <Compile Include="Extensions\StreamExtensions.cs" />
     <Compile Include="Extensions\ViewExtensions.cs" />
     <Compile Include="Listeners\OnGlobalLayoutListener.cs" />
+    <Compile Include="XamarinAdapter.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Resources\AboutResources.txt" />

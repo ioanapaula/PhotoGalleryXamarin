@@ -16,7 +16,6 @@ namespace PhotoGalleryXamarin.Fragments
         private const int ColWidth = 300;
 
         private int _pageIndex;
-        private int _columnNumber;
 
         private RecyclerView _recyclerView;
         private List<GalleryItem> _galleryItems = new List<GalleryItem>();
@@ -32,7 +31,6 @@ namespace PhotoGalleryXamarin.Fragments
 
             RetainInstance = true;
             _pageIndex = 1;
-            _columnNumber = 1;
 
             new FetchItemsTask
             {
@@ -47,7 +45,7 @@ namespace PhotoGalleryXamarin.Fragments
 
             _recyclerView = view.FindViewById<RecyclerView>(Resource.Id.photo_recycler_view);
             _recyclerView.AddGlobalLayoutListener(GlobalLayout);
-            _recyclerView.SetLayoutManager(new GridLayoutManager(Activity, _columnNumber));
+            _recyclerView.SetLayoutManager(new GridLayoutManager(Activity, 3));
             _recyclerView.ScrollChange += ScrollChanged;
             SetupAdapter();
 
@@ -64,8 +62,8 @@ namespace PhotoGalleryXamarin.Fragments
 
         private void GlobalLayout() 
         {
-            _columnNumber = _recyclerView.Width / ColWidth;
-            _recyclerView.SetLayoutManager(new GridLayoutManager(Activity, _columnNumber));
+            var columnNumber = _recyclerView.Width / ColWidth;
+            _recyclerView.SetLayoutManager(new GridLayoutManager(Activity, columnNumber));
         }
 
         private void ScrollChanged(object sender, View.ScrollChangeEventArgs e)
@@ -83,12 +81,12 @@ namespace PhotoGalleryXamarin.Fragments
 
         private void OnItemsFetched(List<GalleryItem> galleryItems)
         {
-            var previousSize = _galleryItems.Count;
+            var indexToInsert = _galleryItems.Count;
             _galleryItems.AddRange(galleryItems);
-            _recyclerView.GetAdapter().NotifyItemRangeInserted(previousSize, galleryItems.Count);
+            _recyclerView.GetAdapter().NotifyItemRangeInserted(indexToInsert, galleryItems.Count);
         }
 
-        private class PhotoAdapter : RecyclerView.Adapter
+        private class PhotoAdapter : XamarinAdapter<PhotoHolder>
         {
             private List<GalleryItem> _galleryItems;
 
@@ -99,18 +97,17 @@ namespace PhotoGalleryXamarin.Fragments
 
             public override int ItemCount => _galleryItems.Count;
 
-            public override ViewHolder OnCreateViewHolder(ViewGroup parent, int viewType)
+            protected override void OnBindViewHolderImpl(PhotoHolder holder, int position)
+            {
+                var galleryItem = _galleryItems[position];
+                holder.BindGalleryItem(galleryItem);
+            }
+
+            protected override PhotoHolder OnCreateViewHolderImpl(ViewGroup parent, int viewType)
             {
                 var textView = new TextView(parent.Context);
 
                 return new PhotoHolder(textView);
-            }
-
-            public override void OnBindViewHolder(ViewHolder holder, int position)
-            {
-                var photoHolder = (PhotoHolder)holder;
-                var galleryItem = _galleryItems[position];
-                photoHolder.BindGalleryItem(galleryItem);
             }
         }
 
