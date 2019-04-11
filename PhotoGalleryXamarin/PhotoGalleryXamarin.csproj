@@ -66,6 +66,8 @@
     <Compile Include="Models\GalleryItem.cs" />
     <Compile Include="XamarinAsyncTask.cs" />
     <Compile Include="Extensions\StreamExtensions.cs" />
+    <Compile Include="Extensions\ViewExtensions.cs" />
+    <Compile Include="Listeners\OnGlobalLayoutListener.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Resources\AboutResources.txt" />
@@ -117,6 +119,7 @@
     <Folder Include="Fragments\" />
     <Folder Include="Models\" />
     <Folder Include="Extensions\" />
+    <Folder Include="Listeners\" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath)\Xamarin\Android\Xamarin.Android.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it.

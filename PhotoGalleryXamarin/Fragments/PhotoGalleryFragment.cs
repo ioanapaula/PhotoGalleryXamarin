@@ -4,6 +4,7 @@ using Android.Support.V4.App;
 using Android.Support.V7.Widget;
 using Android.Views;
 using Android.Widget;
+using PhotoGalleryXamarin.Extensions;
 using PhotoGalleryXamarin.Models;
 using static Android.Support.V7.Widget.RecyclerView;
 
@@ -12,8 +13,11 @@ namespace PhotoGalleryXamarin.Fragments
     public class PhotoGalleryFragment : Fragment
     {
         private new const string Tag = "PhotoGalleryFragment";
+        private const int ColWidth = 300;
 
         private int _pageIndex;
+        private int _columnNumber;
+
         private RecyclerView _recyclerView;
         private List<GalleryItem> _galleryItems = new List<GalleryItem>();
 
@@ -28,6 +32,7 @@ namespace PhotoGalleryXamarin.Fragments
 
             RetainInstance = true;
             _pageIndex = 1;
+            _columnNumber = 1;
 
             new FetchItemsTask
             {
@@ -41,7 +46,8 @@ namespace PhotoGalleryXamarin.Fragments
             var view = inflater.Inflate(Resource.Layout.fragment_photo_gallery, container, false);
 
             _recyclerView = view.FindViewById<RecyclerView>(Resource.Id.photo_recycler_view);
-            _recyclerView.SetLayoutManager(new GridLayoutManager(Activity, 3));
+            _recyclerView.AddGlobalLayoutListener(GlobalLayout);
+            _recyclerView.SetLayoutManager(new GridLayoutManager(Activity, _columnNumber));
             _recyclerView.ScrollChange += ScrollChanged;
             SetupAdapter();
 
@@ -54,6 +60,12 @@ namespace PhotoGalleryXamarin.Fragments
             {
                 _recyclerView.SetAdapter(new PhotoAdapter(_galleryItems));
             }
+        }
+
+        private void GlobalLayout() 
+        {
+            _columnNumber = _recyclerView.Width / ColWidth;
+            _recyclerView.SetLayoutManager(new GridLayoutManager(Activity, _columnNumber));
         }
 
         private void ScrollChanged(object sender, View.ScrollChangeEventArgs e)
