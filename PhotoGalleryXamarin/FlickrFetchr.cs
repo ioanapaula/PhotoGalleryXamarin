@@ -1,12 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
-using Android.Runtime;
+﻿using System.Collections.Generic;
 using Android.Util;
 using Java.IO;
 using Java.Net;
+using Newtonsoft.Json;
 using Org.Json;
-using PhotoGalleryXamarin.Models;
 using PhotoGalleryXamarin.Extensions;
+using PhotoGalleryXamarin.Models;
 
 namespace PhotoGalleryXamarin
 {
@@ -15,8 +14,7 @@ namespace PhotoGalleryXamarin
         private const string ApiKey = "bb8530f0f6763bc399470ee220717fe9";
         private const string Tag = "FlickrFetchr";
 
-
-        public List<GalleryItem> FetchItems()
+        public List<GalleryItem> FetchItems(int pageIndex)
         {
             var items = new List<GalleryItem>();
 
@@ -29,13 +27,18 @@ namespace PhotoGalleryXamarin
                     .AppendQueryParameter("format", "json")
                     .AppendQueryParameter("nojsoncallback", "1")
                     .AppendQueryParameter("extras", "url_s")
+                    .AppendQueryParameter("page", pageIndex.ToString())
                     .Build().ToString();
 
                 var jsonString = GetUrlString(url);
                 Log.Info(Tag, $"Received JSON: {jsonString}");
 
-                var jsonBody = new JSONObject((string)jsonString);
-                ParseItems(items, jsonBody);
+                JsonTextReader reader = new JsonTextReader(new System.IO.StringReader(jsonString.ToString()));
+                JsonSerializer serializer = new JsonSerializer();
+
+                var galleryInfo = serializer.Deserialize<GalleryInfo>(reader);
+                
+                return galleryInfo.Gallery.GalleryItems;
             }
             catch (IOException ioe)
             {
@@ -46,27 +49,7 @@ namespace PhotoGalleryXamarin
                 Log.Error(Tag, $"Failed to parse JSON ", je);
             }
 
-            return items;
-        }
-
-        public void ParseItems(List<GalleryItem> items, JSONObject jsonBody)
-        {
-            var photosJsonObject = jsonBody.GetJSONObject("photos");
-            var photoJsonArray = photosJsonObject.GetJSONArray("photo");
-
-            for(int i = 0; i < photoJsonArray.Length(); i++)
-            {
-                var photoJsonObject = photoJsonArray.GetJSONObject(i);
-                var item = new GalleryItem();
-                item.Id = photoJsonObject.GetString("id");
-                item.Caption = photoJsonObject.GetString("title");
-
-                if (photoJsonObject.Has("url_s"))
-                {
-                    item.Url = photoJsonObject.GetString("url_s");
-                    items.Add(item);
-                }
-            }
+            return null;
         }
 
         private byte[] GetUrlBytes(string urlSpec)

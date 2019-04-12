@@ -63,14 +63,18 @@
     <Compile Include="Activities\SingleFragmentActivity.cs" />
     <Compile Include="Fragments\PhotoGalleryFragment.cs" />
     <Compile Include="FlickrFetchr.cs" />
-    <Compile Include="Models\GalleryItem.cs" />
+    <Compile Include="Models\GalleryInfo.cs" />
     <Compile Include="XamarinAsyncTask.cs" />
     <Compile Include="Extensions\StreamExtensions.cs" />
+    <Compile Include="Extensions\ViewExtensions.cs" />
+    <Compile Include="Listeners\OnGlobalLayoutListener.cs" />
+    <Compile Include="XamarinAdapter.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Resources\AboutResources.txt" />
     <None Include="Properties\AndroidManifest.xml" />
     <None Include="Assets\AboutAssets.txt" />
+    <None Include="Settings.StyleCop" />
   </ItemGroup>
   <ItemGroup>
     <AndroidResource Include="Resources\layout\fragment_photo_gallery.axml">
@@ -104,12 +108,19 @@
     <PackageReference Include="Xamarin.Android.Support.Core.Utils" Version="28.0.0.1" />
     <PackageReference Include="Xamarin.Android.Support.CustomTabs" Version="28.0.0.1" />
     <PackageReference Include="Xamarin.Essentials" Version="1.1.0" />
+    <PackageReference Include="Newtonsoft.Json">
+      <Version>12.0.1</Version>
+    </PackageReference>
+    <PackageReference Include="StyleCop.MSBuild">
+      <Version>6.1.0</Version>
+    </PackageReference>
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Activities\" />
     <Folder Include="Fragments\" />
     <Folder Include="Models\" />
     <Folder Include="Extensions\" />
+    <Folder Include="Listeners\" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath)\Xamarin\Android\Xamarin.Android.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it.
