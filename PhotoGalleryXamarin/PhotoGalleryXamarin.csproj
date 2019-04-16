@@ -66,11 +66,14 @@
     <Compile Include="Models\GalleryItem.cs" />
     <Compile Include="XamarinAsyncTask.cs" />
     <Compile Include="Extensions\StreamExtensions.cs" />
+    <Compile Include="ThumbnailDownloader.cs" />
+    <Compile Include="Extensions\ViewExtensions.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Resources\AboutResources.txt" />
     <None Include="Properties\AndroidManifest.xml" />
     <None Include="Assets\AboutAssets.txt" />
+    <None Include="Settings.StyleCop" />
   </ItemGroup>
   <ItemGroup>
     <AndroidResource Include="Resources\layout\fragment_photo_gallery.axml">
@@ -98,18 +101,24 @@
     <AndroidResource Include="Resources\mipmap-xxxhdpi\ic_launcher_foreground.png" />
     <AndroidResource Include="Resources\mipmap-xxxhdpi\ic_launcher_round.png" />
     <AndroidResource Include="Resources\layout\activity_fragment.axml" />
+    <AndroidResource Include="Resources\layout\list_item_gallery.xml" />
+    <AndroidResource Include="Resources\drawable\bill_up_close.png" />
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="Xamarin.Android.Support.Design" Version="28.0.0.1" />
     <PackageReference Include="Xamarin.Android.Support.Core.Utils" Version="28.0.0.1" />
     <PackageReference Include="Xamarin.Android.Support.CustomTabs" Version="28.0.0.1" />
     <PackageReference Include="Xamarin.Essentials" Version="1.1.0" />
+    <PackageReference Include="StyleCop.MSBuild">
+      <Version>6.1.0</Version>
+    </PackageReference>
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Activities\" />
     <Folder Include="Fragments\" />
     <Folder Include="Models\" />
     <Folder Include="Extensions\" />
+    <Folder Include="Resources\drawable\" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath)\Xamarin\Android\Xamarin.Android.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it.
