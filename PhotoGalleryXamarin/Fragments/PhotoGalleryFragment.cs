@@ -4,14 +4,12 @@ using Android.Graphics;
 using Android.Graphics.Drawables;
 using Android.OS;
 using Android.Support.V4.App;
-using Android.Support.V4.Content.Res;
 using Android.Support.V7.Widget;
 using Android.Util;
 using Android.Views;
 using Android.Widget;
-using Java.IO;
-using Java.Lang;
 using PhotoGalleryXamarin.Extensions;
+using PhotoGalleryXamarin.Listeners;
 using PhotoGalleryXamarin.Models;
 using static Android.Support.V7.Widget.RecyclerView;
 
@@ -24,6 +22,7 @@ namespace PhotoGalleryXamarin.Fragments
         private RecyclerView _recyclerView;
         private List<GalleryItem> _galleryItems = new List<GalleryItem>();
         private ThumbnailDownloader<PhotoHolder> _thumbnailDownloader;
+        private Android.Support.V7.Widget.SearchView _searchView;
 
         public static PhotoGalleryFragment NewInstance()
         {
@@ -35,11 +34,9 @@ namespace PhotoGalleryXamarin.Fragments
             base.OnCreate(savedInstanceState);
 
             RetainInstance = true;
+            HasOptionsMenu = true;
 
-            new FetchItemsTask
-            {
-                OnPostExecuteImpl = OnItemsFetched
-            }.Execute();
+            UpdateItems();
 
             var responseHandler = new Handler();
             _thumbnailDownloader = new ThumbnailDownloader<PhotoHolder>(responseHandler);
@@ -64,6 +61,34 @@ namespace PhotoGalleryXamarin.Fragments
             return view;
         }
 
+        public override void OnCreateOptionsMenu(IMenu menu, MenuInflater inflater)
+        {
+            base.OnCreateOptionsMenu(menu, inflater);
+
+            inflater.Inflate(Resource.Menu.fragment_photo_gallery, menu);
+
+            var searchItem = menu.FindItem(Resource.Id.menu_item_search);
+            _searchView = (Android.Support.V7.Widget.SearchView)searchItem.ActionView;
+
+            _searchView.QueryTextSubmit += QueryTextSubmitted;
+            _searchView.QueryTextChange += QueryTextChanged;
+            _searchView.SetOnSearchClickListener(new OnSearchClickListener(SearchViewClicked));
+        }
+
+        public override bool OnOptionsItemSelected(IMenuItem item)
+        {
+            switch (item.ItemId)
+            {
+                case Resource.Id.menu_item_clear:
+                    QueryPreferences.SetStoredQuery(Activity, null);
+                    UpdateItems();
+
+                    return true;
+                default:
+                    return base.OnOptionsItemSelected(item);
+            }
+        }
+
         public override void OnDestroy()
         {
             base.OnDestroy();
@@ -78,6 +103,34 @@ namespace PhotoGalleryXamarin.Fragments
             {
                 _recyclerView.SetAdapter(new PhotoAdapter(_galleryItems, _thumbnailDownloader));
             }
+        }
+
+        private void SearchViewClicked()
+        {
+            var query = QueryPreferences.GetStoredQuery(Activity);
+            _searchView.SetQuery(query, false);
+        }
+
+        private void QueryTextChanged(object sender, Android.Support.V7.Widget.SearchView.QueryTextChangeEventArgs e)
+        {
+            Log.Debug(Tag, $"QueryTextChange: {e.NewText}");
+        }
+
+        private void QueryTextSubmitted(object sender, Android.Support.V7.Widget.SearchView.QueryTextSubmitEventArgs e)
+        {
+            Log.Debug(Tag, $"QueryTextSubmit: {e.Query}");
+            QueryPreferences.SetStoredQuery(Activity, e.Query);
+            UpdateItems();
+        }
+
+        private void UpdateItems()
+        {
+            var query = QueryPreferences.GetStoredQuery(Activity);
+
+            new FetchItemsTask(query)
+            {
+                OnPostExecuteImpl = OnItemsFetched
+            }.Execute();
         }
 
         private void OnThumbnailDownloaded(PhotoHolder holder, Bitmap bitmap)
@@ -118,7 +171,7 @@ namespace PhotoGalleryXamarin.Fragments
             {
                 var photoHolder = (PhotoHolder)holder;
                 var placeholder = holder.ItemView.GetDrawable(Resource.Drawable.bill_up_close);
-                
+
                 photoHolder.BindDrawable(placeholder);
                 _thumbnailDownloader.QueueThumbnail(photoHolder, _galleryItems[position].Url);
             }
@@ -141,9 +194,23 @@ namespace PhotoGalleryXamarin.Fragments
 
         private class FetchItemsTask : XamarinAsyncTask<List<GalleryItem>>
         {
+            private string _query;
+
+            public FetchItemsTask(string query)
+            {
+                _query = query;
+            }
+
             protected override List<GalleryItem> DoInBackground()
             {
-                return new FlickrFetchr().FetchItems();
+                if (_query == null)
+                {
+                    return new FlickrFetchr().FetchRecentPhotos();
+                }
+                else
+                {
+                    return new FlickrFetchr().SearchPhotos(_query);
+                }
             }
         }
     }
