@@ -2702,6 +2702,12 @@ namespace PhotoGalleryXamarin
 			// aapt resource value: 0x7f0900a2
 			public const int media_actions = 2131296418;
 			
+			// aapt resource value: 0x7f0900b3
+			public const int menu_item_clear = 2131296435;
+			
+			// aapt resource value: 0x7f0900b2
+			public const int menu_item_search = 2131296434;
+			
 			// aapt resource value: 0x7f0900af
 			public const int message = 2131296431;
 			
@@ -3218,6 +3224,22 @@ namespace PhotoGalleryXamarin
 			}
 		}
 		
+		public partial class Menu
+		{
+			
+			// aapt resource value: 0x7f0f0000
+			public const int fragment_photo_gallery = 2131689472;
+			
+			static Menu()
+			{
+				global::Android.Runtime.ResourceIdManager.UpdateIdValues();
+			}
+			
+			private Menu()
+			{
+			}
+		}
+		
 		public partial class Mipmap
 		{
 			
@@ -3345,6 +3367,9 @@ namespace PhotoGalleryXamarin
 			// aapt resource value: 0x7f0a0020
 			public const int character_counter_pattern = 2131361824;
 			
+			// aapt resource value: 0x7f0a002a
+			public const int clear_search = 2131361834;
+			
 			// aapt resource value: 0x7f0a0021
 			public const int password_toggle_content_description = 2131361825;
 			
@@ -3359,6 +3384,9 @@ namespace PhotoGalleryXamarin
 			
 			// aapt resource value: 0x7f0a0025
 			public const int path_password_strike_through = 2131361829;
+			
+			// aapt resource value: 0x7f0a0029
+			public const int search = 2131361833;
 			
 			// aapt resource value: 0x7f0a0011
 			public const int search_menu_title = 2131361809;

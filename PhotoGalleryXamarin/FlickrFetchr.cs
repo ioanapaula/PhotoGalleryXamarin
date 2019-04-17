@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using Android.Net;
 using Android.Util;
 using Java.IO;
 using Java.Net;
@@ -10,60 +11,31 @@ namespace PhotoGalleryXamarin
 {
     public class FlickrFetchr
     {
-        private const string ApiKey = "bb8530f0f6763bc399470ee220717fe9";
         private const string Tag = "FlickrFetchr";
+        private const string ApiKey = "bb8530f0f6763bc399470ee220717fe9";
+        private const string FetchRecentsMethod = "flickr.photos.getRecent";
+        private const string SearchMethod = "flickr.photos.search";
 
-        public List<GalleryItem> FetchItems()
-        {
-            var items = new List<GalleryItem>();
-
-            try
-            {
-                var url = Android.Net.Uri.Parse("https://api.flickr.com/services/rest/")
+        private Uri _endpoint = Uri.Parse("https://api.flickr.com/services/rest/")
                     .BuildUpon()
-                    .AppendQueryParameter("method", "flickr.photos.getRecent")
                     .AppendQueryParameter("api_key", ApiKey)
                     .AppendQueryParameter("format", "json")
                     .AppendQueryParameter("nojsoncallback", "1")
                     .AppendQueryParameter("extras", "url_s")
-                    .Build().ToString();
+                    .Build();
 
-                var jsonString = GetUrlString(url);
-                Log.Info(Tag, $"Received JSON: {jsonString}");
+        public List<GalleryItem> FetchRecentPhotos()
+        {
+            string url = BuildUrl(FetchRecentsMethod, null);
 
-                var jsonBody = new JSONObject((string)jsonString);
-                ParseItems(items, jsonBody);
-            }
-            catch (IOException ioe)
-            {
-                Log.Error(Tag, $"Failed to fetch items ", ioe);
-            }
-            catch (JSONException je)
-            {
-                Log.Error(Tag, $"Failed to parse JSON ", je);
-            }
-
-            return items;
+            return DownloadGalleryItems(url);
         }
 
-        public void ParseItems(List<GalleryItem> items, JSONObject jsonBody)
+        public List<GalleryItem> SearchPhotos(string query)
         {
-            var photosJsonObject = jsonBody.GetJSONObject("photos");
-            var photoJsonArray = photosJsonObject.GetJSONArray("photo");
+            string url = BuildUrl(SearchMethod, query);
 
-            for (int i = 0; i < photoJsonArray.Length(); i++)
-            {
-                var photoJsonObject = photoJsonArray.GetJSONObject(i);
-                var item = new GalleryItem();
-                item.Id = photoJsonObject.GetString("id");
-                item.Caption = photoJsonObject.GetString("title");
-
-                if (photoJsonObject.Has("url_s"))
-                {
-                    item.Url = photoJsonObject.GetString("url_s");
-                    items.Add(item);
-                }
-            }
+            return DownloadGalleryItems(url);
         }
 
         public byte[] GetUrlBytes(string urlSpec)
@@ -102,6 +74,63 @@ namespace PhotoGalleryXamarin
         private Java.Lang.String GetUrlString(string urlSpec)
         {
             return new Java.Lang.String(GetUrlBytes(urlSpec));
+        }
+
+        private List<GalleryItem> DownloadGalleryItems(string url)
+        {
+            var items = new List<GalleryItem>();
+
+            try
+            {
+                var jsonString = GetUrlString(url);
+                Log.Info(Tag, $"Received JSON: {jsonString}");
+
+                var jsonBody = new JSONObject((string)jsonString);
+                ParseItems(items, jsonBody);
+            }
+            catch (IOException ioe)
+            {
+                Log.Error(Tag, $"Failed to fetch items ", ioe);
+            }
+            catch (JSONException je)
+            {
+                Log.Error(Tag, $"Failed to parse JSON ", je);
+            }
+
+            return items;
+        }
+
+        private void ParseItems(List<GalleryItem> items, JSONObject jsonBody)
+        {
+            var photosJsonObject = jsonBody.GetJSONObject("photos");
+            var photoJsonArray = photosJsonObject.GetJSONArray("photo");
+
+            for (int i = 0; i < photoJsonArray.Length(); i++)
+            {
+                var photoJsonObject = photoJsonArray.GetJSONObject(i);
+                var item = new GalleryItem();
+                item.Id = photoJsonObject.GetString("id");
+                item.Caption = photoJsonObject.GetString("title");
+
+                if (photoJsonObject.Has("url_s"))
+                {
+                    item.Url = photoJsonObject.GetString("url_s");
+                    items.Add(item);
+                }
+            }
+        }
+
+        private string BuildUrl(string method, string query)
+        {
+            Uri.Builder uriBuilder = _endpoint.BuildUpon()
+                .AppendQueryParameter("method", method);
+
+            if (method.Equals(SearchMethod))
+            {
+                uriBuilder.AppendQueryParameter("text", query);
+            }
+
+            return uriBuilder.Build().ToString();
         }
     }
 }
