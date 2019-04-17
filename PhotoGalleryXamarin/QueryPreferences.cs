@@ -6,9 +6,10 @@ namespace PhotoGalleryXamarin
 {
     public class QueryPreferences
     {
-        public const string PrefSearchQuery = "searchQuery";
+        private const string PrefSearchQuery = "searchQuery";
+        private const string PrefLastResultId = "lastResultId";
 
-        public static String GetStoredQuery(Context context)
+        public static string GetStoredQuery(Context context)
         {
             return PreferenceManager.GetDefaultSharedPreferences(context).GetString(PrefSearchQuery, null);
         }
@@ -18,6 +19,19 @@ namespace PhotoGalleryXamarin
             PreferenceManager.GetDefaultSharedPreferences(context)
                 .Edit()
                 .PutString(PrefSearchQuery, query)
+                .Apply();
+        }
+
+        public static string GetLastResultId(Context context)
+        {
+            return PreferenceManager.GetDefaultSharedPreferences(context).GetString(PrefLastResultId, null);
+        }
+
+        public static void SetLastResultId(Context context, string lastResultId)
+        {
+            PreferenceManager.GetDefaultSharedPreferences(context)
+                .Edit()
+                .PutString(PrefLastResultId, lastResultId)
                 .Apply();
         }
     }

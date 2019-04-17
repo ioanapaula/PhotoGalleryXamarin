@@ -11,6 +11,7 @@ using Android.Widget;
 using PhotoGalleryXamarin.Extensions;
 using PhotoGalleryXamarin.Listeners;
 using PhotoGalleryXamarin.Models;
+using PhotoGalleryXamarin.Services;
 using static Android.Support.V7.Widget.RecyclerView;
 
 namespace PhotoGalleryXamarin.Fragments
@@ -73,6 +74,16 @@ namespace PhotoGalleryXamarin.Fragments
             _searchView.QueryTextSubmit += QueryTextSubmitted;
             _searchView.QueryTextChange += QueryTextChanged;
             _searchView.SetOnSearchClickListener(new OnSearchClickListener(SearchViewClicked));
+
+            var toggleItem = menu.FindItem(Resource.Id.menu_item_toggle_polling);
+            if (PollService.IsServiceAlarmOn(Activity))
+            {
+                toggleItem.SetTitle(Resource.String.stop_polling);
+            }
+            else
+            {
+                toggleItem.SetTitle(Resource.String.start_polling);
+            }
         }
 
         public override bool OnOptionsItemSelected(IMenuItem item)
@@ -82,6 +93,12 @@ namespace PhotoGalleryXamarin.Fragments
                 case Resource.Id.menu_item_clear:
                     QueryPreferences.SetStoredQuery(Activity, null);
                     UpdateItems();
+
+                    return true;
+                case Resource.Id.menu_item_toggle_polling:
+                    var shouldStartAlarm = !PollService.IsServiceAlarmOn(Activity);
+                    PollService.SetServiceAlarm(Activity, shouldStartAlarm);
+                    Activity.InvalidateOptionsMenu();
 
                     return true;
                 default:
