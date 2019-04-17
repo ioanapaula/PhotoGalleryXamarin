@@ -8,6 +8,8 @@ namespace PhotoGalleryXamarin
     {
         public System.Action<T> OnPostExecuteImpl { get; set; }
 
+        public System.Action OnPreExecuteImpl { get; set; }
+
         protected sealed override void OnPostExecute(JavaObject result)
         {
             var unwrappedResult = (result as JavaObjectWrapper<T>).ContainedObject;
@@ -15,6 +17,13 @@ namespace PhotoGalleryXamarin
             base.OnPostExecute(unwrappedResult);
 
             OnPostExecuteImpl?.Invoke(unwrappedResult);
+        }
+
+        protected override void OnPreExecute()
+        {
+            base.OnPreExecute();
+
+            OnPreExecuteImpl?.Invoke();
         }
 
         protected sealed override JavaObject DoInBackground(params JavaObject[] native_parms)

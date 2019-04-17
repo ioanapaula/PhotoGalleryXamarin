@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using Android.Content;
 using Android.Graphics;
 using Android.Graphics.Drawables;
 using Android.OS;
@@ -7,6 +8,7 @@ using Android.Support.V4.App;
 using Android.Support.V7.Widget;
 using Android.Util;
 using Android.Views;
+using Android.Views.InputMethods;
 using Android.Widget;
 using PhotoGalleryXamarin.Extensions;
 using PhotoGalleryXamarin.Listeners;
@@ -22,7 +24,10 @@ namespace PhotoGalleryXamarin.Fragments
         private RecyclerView _recyclerView;
         private List<GalleryItem> _galleryItems = new List<GalleryItem>();
         private ThumbnailDownloader<PhotoHolder> _thumbnailDownloader;
+
         private Android.Support.V7.Widget.SearchView _searchView;
+        private IMenuItem _searchItem;
+        private ProgressBar _progressBar;
 
         public static PhotoGalleryFragment NewInstance()
         {
@@ -52,6 +57,7 @@ namespace PhotoGalleryXamarin.Fragments
         public override View OnCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState)
         {
             var view = inflater.Inflate(Resource.Layout.fragment_photo_gallery, container, false);
+            _progressBar = (ProgressBar)view.FindViewById(Resource.Id.indeterminateBar);
 
             _recyclerView = view.FindViewById<RecyclerView>(Resource.Id.photo_recycler_view);
             _recyclerView.SetLayoutManager(new GridLayoutManager(Activity, 3));
@@ -67,8 +73,8 @@ namespace PhotoGalleryXamarin.Fragments
 
             inflater.Inflate(Resource.Menu.fragment_photo_gallery, menu);
 
-            var searchItem = menu.FindItem(Resource.Id.menu_item_search);
-            _searchView = (Android.Support.V7.Widget.SearchView)searchItem.ActionView;
+            _searchItem = menu.FindItem(Resource.Id.menu_item_search);
+            _searchView = (Android.Support.V7.Widget.SearchView)_searchItem.ActionView;
 
             _searchView.QueryTextSubmit += QueryTextSubmitted;
             _searchView.QueryTextChange += QueryTextChanged;
@@ -120,7 +126,30 @@ namespace PhotoGalleryXamarin.Fragments
         {
             Log.Debug(Tag, $"QueryTextSubmit: {e.Query}");
             QueryPreferences.SetStoredQuery(Activity, e.Query);
+            HideKeyboard(Context, _searchView);
+            _searchItem.CollapseActionView();
+            
             UpdateItems();
+        }
+
+        private void HideKeyboard(Context context, View view)
+        {
+            var inputMethodManager = (InputMethodManager)context.GetSystemService(Context.InputMethodService);
+            inputMethodManager.HideSoftInputFromWindow(view.WindowToken, 0);
+        }
+
+        private void SetProgressVisibility(bool isVisible)
+        {
+            if (isVisible)
+            {
+                _recyclerView.Visibility = ViewStates.Gone;
+                _progressBar.Visibility = ViewStates.Visible;
+            }
+            else
+            {
+                _recyclerView.Visibility = ViewStates.Visible;
+                _progressBar.Visibility = ViewStates.Gone;
+            }
         }
 
         private void UpdateItems()
@@ -129,6 +158,7 @@ namespace PhotoGalleryXamarin.Fragments
 
             new FetchItemsTask(query)
             {
+                OnPreExecuteImpl = OnFetchStarted,
                 OnPostExecuteImpl = OnItemsFetched
             }.Execute();
         }
@@ -142,8 +172,21 @@ namespace PhotoGalleryXamarin.Fragments
 
         private void OnItemsFetched(List<GalleryItem> galleryItems)
         {
+            if (_progressBar != null && _recyclerView != null)
+            {
+                SetProgressVisibility(false);
+            }
+
             _galleryItems = galleryItems;
             SetupAdapter();
+        }
+
+        private void OnFetchStarted()
+        {
+            if (_progressBar != null && _recyclerView != null)
+            {
+                SetProgressVisibility(true);
+            }
         }
 
         private class PhotoAdapter : RecyclerView.Adapter
