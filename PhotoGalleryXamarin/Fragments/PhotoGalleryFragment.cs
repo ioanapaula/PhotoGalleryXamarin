@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using Android.App.Job;
 using Android.Graphics;
 using Android.Graphics.Drawables;
 using Android.OS;
@@ -76,7 +77,7 @@ namespace PhotoGalleryXamarin.Fragments
             _searchView.SetOnSearchClickListener(new OnSearchClickListener(SearchViewClicked));
 
             var toggleItem = menu.FindItem(Resource.Id.menu_item_toggle_polling);
-            if (PollService.IsServiceAlarmOn(Activity))
+            if (PollService.IsScheduled(Activity))
             {
                 toggleItem.SetTitle(Resource.String.stop_polling);
             }
@@ -96,8 +97,8 @@ namespace PhotoGalleryXamarin.Fragments
 
                     return true;
                 case Resource.Id.menu_item_toggle_polling:
-                    var shouldStartAlarm = !PollService.IsServiceAlarmOn(Activity);
-                    PollService.SetServiceAlarm(Activity, shouldStartAlarm);
+                    var shouldStartAlarm = !PollService.IsScheduled(Activity);
+                    PollService.SetScheduler(Activity, shouldStartAlarm);
                     Activity.InvalidateOptionsMenu();
 
                     return true;
@@ -209,7 +210,7 @@ namespace PhotoGalleryXamarin.Fragments
             }
         }
 
-        private class FetchItemsTask : XamarinAsyncTask<List<GalleryItem>>
+        private class FetchItemsTask : XamarinAsyncTask<Java.Lang.Void, List<GalleryItem>>
         {
             private string _query;
 
@@ -218,7 +219,7 @@ namespace PhotoGalleryXamarin.Fragments
                 _query = query;
             }
 
-            protected override List<GalleryItem> DoInBackground()
+            protected override List<GalleryItem> DoInBackground(params Java.Lang.Void[] parameters)
             {
                 if (_query == null)
                 {

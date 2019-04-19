@@ -71,6 +71,7 @@
     <Compile Include="QueryPreferences.cs" />
     <Compile Include="Listeners\OnSearchClickListener.cs" />
     <Compile Include="Services\PollService.cs" />
+    <Compile Include="PollService.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Resources\AboutResources.txt" />

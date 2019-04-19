@@ -11,7 +11,6 @@ using PhotoGalleryXamarin.Models;
 
 namespace PhotoGalleryXamarin.Services
 {
-    [Service]
     public class PollService : IntentService
     {
         private const string Tag = "PollService";
