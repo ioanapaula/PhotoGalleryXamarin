@@ -70,6 +70,7 @@
     <Compile Include="Activities\PhotoGalleryActivity.cs" />
     <Compile Include="QueryPreferences.cs" />
     <Compile Include="Listeners\OnSearchClickListener.cs" />
+    <Compile Include="Services\PollService.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Resources\AboutResources.txt" />
@@ -124,6 +125,7 @@
     <Folder Include="Resources\drawable\" />
     <Folder Include="Resources\menu\" />
     <Folder Include="Listeners\" />
+    <Folder Include="Services\" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath)\Xamarin\Android\Xamarin.Android.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it.
